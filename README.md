@@ -21,6 +21,7 @@ One-command install · works in Claude Code, Cursor & Codex · free & MIT.
 [![License](https://img.shields.io/github/license/justsima/agentic-stack?style=flat-square&color=f59e0b&labelColor=0b1020)](LICENSE)
 [![Made for Claude Code](https://img.shields.io/badge/made%20for-Claude%20Code-d97757?style=flat-square&labelColor=0b1020)](https://claude.com/claude-code)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-6ee7b7?style=flat-square&labelColor=0b1020)](#-contributing)
+[![Release](https://img.shields.io/github/v/release/justsima/agentic-stack?style=flat-square&color=818cf8&labelColor=0b1020&display_name=tag&sort=semver)](https://github.com/justsima/agentic-stack/releases)
 
 [**🚀 Quick start**](#-quick-start) · [**🧩 Plugins**](#-the-plugins) · [**🧠 How it works**](#-how-it-works) · [**📊 Analytics**](#-analytics--traffic) · [**🧰 Any tool**](#-install-in-your-tool)
 
