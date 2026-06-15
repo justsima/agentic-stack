@@ -1,0 +1,7 @@
+{
+  "name": "job-application-helper",
+  "description": "Generate natural, tailored job-application answers from your own profile. You create a private, git-ignored references/profile.md from the included template; nothing personal ships with the plugin.",
+  "version": "1.0.0",
+  "author": { "name": "justsima", "url": "https://github.com/justsima" },
+  "keywords": ["job-application", "writing", "career", "template"]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "ultradeep",
+  "description": "Multi-agent deep-research pipeline (orchestrator + parallel explorers + adversarial red-team). Tiered search via Exa/SearXNG/WebSearch, optional Obsidian-wiki filing and knowledge-graph. Tunable via deep-research/program.md.",
+  "version": "1.0.0",
+  "author": { "name": "justsima", "url": "https://github.com/justsima" },
+  "keywords": ["research", "multi-agent", "deep-research", "exa", "red-team"]
+}

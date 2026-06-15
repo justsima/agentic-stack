@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "_doc": "market-scout criteria library. Each category declares: criteria{} (label/unit/direction/is_price per metric) and profiles{} (named weight vectors that MUST sum to ~1.0). The scoring engine reads weights from the active profile; criteria{} only supplies display + normalization direction. Add a category by copying _generic and tuning. direction 'lower' = smaller is better (price, latency, weight, drain).",
+  "categories": {
+    "5g-router": {
+      "label": "5G Router / Cellular Gateway",
+      "notes": "Covers standalone home 5G routers (Wi-Fi 7 gateways with built-in NR modem), PoE add-on 5G modems, and mobile/travel 5G hotspots. Use the 'travel' profile for mobile hotspots, 'default' for whole-home gateways.",
+      "criteria": {
+        "expert_rating":        {"label": "Expert review consensus", "unit": "/10", "direction": "higher"},
+        "max_5g_downlink_gbps": {"label": "Max 5G downlink", "unit": "Gbps", "direction": "higher"},
+        "wifi_standard_score":  {"label": "Wi-Fi generation", "unit": "5/6/6.1/7", "direction": "higher"},
+        "max_wifi_gbps":        {"label": "Max Wi-Fi throughput", "unit": "Gbps", "direction": "higher"},
+        "band_coverage_count":  {"label": "5G NR band coverage", "unit": "# bands", "direction": "higher"},
+        "ethernet_max_gbps":    {"label": "Wired uplink", "unit": "Gbps", "direction": "higher"},
+        "max_devices":          {"label": "Max connected devices", "unit": "#", "direction": "higher"},
+        "battery_hours":        {"label": "Battery life", "unit": "hours", "direction": "higher"},
+        "esim_support":         {"label": "eSIM / global plans", "unit": "0/1", "direction": "higher"},
+        "portability_score":    {"label": "Portability", "unit": "0-10", "direction": "higher"},
+        "carrier_freedom":      {"label": "Unlocked / carrier freedom", "unit": "0/1", "direction": "higher"},
+        "price_usd":            {"label": "Street price", "unit": "USD", "direction": "lower", "is_price": true}
+      },
+      "profiles": {
+        "default":     {"expert_rating": 0.22, "max_5g_downlink_gbps": 0.18, "price_usd": 0.16, "wifi_standard_score": 0.12, "band_coverage_count": 0.12, "max_wifi_gbps": 0.10, "ethernet_max_gbps": 0.10},
+        "performance": {"max_5g_downlink_gbps": 0.26, "expert_rating": 0.20, "max_wifi_gbps": 0.18, "wifi_standard_score": 0.14, "band_coverage_count": 0.12, "ethernet_max_gbps": 0.10},
+        "value":       {"price_usd": 0.34, "expert_rating": 0.24, "max_5g_downlink_gbps": 0.16, "wifi_standard_score": 0.10, "band_coverage_count": 0.08, "max_wifi_gbps": 0.04, "ethernet_max_gbps": 0.04},
+        "travel":      {"expert_rating": 0.18, "battery_hours": 0.18, "esim_support": 0.16, "portability_score": 0.14, "carrier_freedom": 0.10, "max_5g_downlink_gbps": 0.12, "price_usd": 0.12}
+      }
+    },
+
+    "laptop": {
+      "label": "Laptop",
+      "notes": "General-purpose buying. Use 'performance' for creator/dev rigs, 'value' for students, 'portable' for travel/ultrabooks.",
+      "criteria": {
+        "expert_rating":     {"label": "Expert review consensus", "unit": "/10", "direction": "higher"},
+        "cpu_score":         {"label": "CPU multi-core (benchmark)", "unit": "pts", "direction": "higher"},
+        "gpu_score":         {"label": "GPU (benchmark)", "unit": "pts", "direction": "higher"},
+        "ram_gb":            {"label": "RAM", "unit": "GB", "direction": "higher"},
+        "storage_gb":        {"label": "SSD storage", "unit": "GB", "direction": "higher"},
+        "battery_hours":     {"label": "Battery life", "unit": "hours", "direction": "higher"},
+        "display_quality":   {"label": "Display quality", "unit": "0-10", "direction": "higher"},
+        "weight_kg":         {"label": "Weight", "unit": "kg", "direction": "lower"},
+        "build_quality":     {"label": "Build / keyboard", "unit": "0-10", "direction": "higher"},
+        "price_usd":         {"label": "Street price", "unit": "USD", "direction": "lower", "is_price": true}
+      },
+      "profiles": {
+        "default":     {"expert_rating": 0.20, "cpu_score": 0.14, "battery_hours": 0.14, "display_quality": 0.12, "price_usd": 0.12, "build_quality": 0.10, "ram_gb": 0.08, "gpu_score": 0.06, "storage_gb": 0.04},
+        "performance": {"cpu_score": 0.24, "gpu_score": 0.22, "ram_gb": 0.12, "expert_rating": 0.14, "display_quality": 0.12, "storage_gb": 0.08, "build_quality": 0.08},
+        "value":       {"price_usd": 0.32, "expert_rating": 0.20, "cpu_score": 0.14, "battery_hours": 0.12, "ram_gb": 0.10, "display_quality": 0.07, "storage_gb": 0.05},
+        "portable":    {"battery_hours": 0.24, "weight_kg": 0.22, "expert_rating": 0.16, "display_quality": 0.12, "build_quality": 0.10, "cpu_score": 0.10, "price_usd": 0.06}
+      }
+    },
+
+    "phone": {
+      "label": "Smartphone",
+      "notes": "Use 'camera' for photography priority, 'value' for budget, 'battery' for endurance.",
+      "criteria": {
+        "expert_rating":   {"label": "Expert review consensus", "unit": "/10", "direction": "higher"},
+        "camera_score":    {"label": "Camera (DXO/expert)", "unit": "pts", "direction": "higher"},
+        "cpu_score":       {"label": "SoC performance", "unit": "pts", "direction": "higher"},
+        "battery_hours":   {"label": "Battery endurance", "unit": "hours", "direction": "higher"},
+        "display_quality": {"label": "Display quality", "unit": "0-10", "direction": "higher"},
+        "update_years":    {"label": "OS/security support", "unit": "years", "direction": "higher"},
+        "price_usd":       {"label": "Street price", "unit": "USD", "direction": "lower", "is_price": true}
+      },
+      "profiles": {
+        "default":  {"expert_rating": 0.22, "camera_score": 0.18, "cpu_score": 0.14, "battery_hours": 0.14, "display_quality": 0.12, "price_usd": 0.12, "update_years": 0.08},
+        "camera":   {"camera_score": 0.34, "expert_rating": 0.20, "display_quality": 0.16, "cpu_score": 0.12, "battery_hours": 0.10, "update_years": 0.08},
+        "value":    {"price_usd": 0.34, "expert_rating": 0.22, "battery_hours": 0.16, "cpu_score": 0.12, "camera_score": 0.10, "update_years": 0.06},
+        "battery":  {"battery_hours": 0.34, "expert_rating": 0.20, "cpu_score": 0.14, "display_quality": 0.12, "price_usd": 0.12, "camera_score": 0.08}
+      }
+    },
+
+    "_generic": {
+      "label": "Generic product",
+      "notes": "Fallback for any category not yet modeled. The orchestrator should attach metrics it can find; price_usd + expert_rating are the minimum viable set. Prefer adding a dedicated category over leaning on this.",
+      "criteria": {
+        "expert_rating": {"label": "Expert review consensus", "unit": "/10", "direction": "higher"},
+        "feature_score": {"label": "Feature completeness", "unit": "0-10", "direction": "higher"},
+        "reliability":   {"label": "Reliability / owner satisfaction", "unit": "0-10", "direction": "higher"},
+        "price_usd":     {"label": "Street price", "unit": "USD", "direction": "lower", "is_price": true}
+      },
+      "profiles": {
+        "default": {"expert_rating": 0.34, "feature_score": 0.24, "reliability": 0.22, "price_usd": 0.20},
+        "value":   {"price_usd": 0.40, "expert_rating": 0.28, "reliability": 0.20, "feature_score": 0.12}
+      }
+    }
+  }
+}

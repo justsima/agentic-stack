@@ -1,0 +1,7 @@
+{
+  "name": "agentic-config",
+  "description": "The config layer: safety hooks (block dangerous bash, block secret leaks), a session-context hook, and a verify-before-stop hook, registered via hooks/hooks.json. Ships a recommended-settings.json fragment (permission denylist + workflow flags). Contains no secrets.",
+  "version": "1.0.0",
+  "author": { "name": "justsima", "url": "https://github.com/justsima" },
+  "keywords": ["hooks", "safety", "secrets", "config", "guardrails"]
+}

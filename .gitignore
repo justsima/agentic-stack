@@ -1,0 +1,21 @@
+# --- Secrets & local config (NEVER commit) ---
+.env
+.env.*
+*.key
+*.pem
+secrets.json
+mcp-servers.json          # the FILLED-IN MCP config with real keys (template is committed)
+**/settings.local.json
+
+# --- Personal data that must never ship ---
+**/references/profile.md  # job-application-helper: your private profile
+wiki/                     # if anyone drops a real wiki here, keep it out
+*.private.*
+
+# --- Python / OS noise ---
+__pycache__/
+*.pyc
+.DS_Store
+*.bak
+*.bak.*
+node_modules/

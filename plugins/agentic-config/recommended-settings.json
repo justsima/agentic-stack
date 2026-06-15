@@ -1,0 +1,25 @@
+{
+  "_comment": "Recommended Claude Code settings to pair with this stack. Merge into your ~/.claude/settings.json. Contains NO secrets and NO bypassPermissions (kept at 'default' — opt into looser modes yourself). The deny-list is a safety net even if you do.",
+  "permissions": {
+    "deny": [
+      "Read(//**/.aws/credentials)",
+      "Read(//**/.gnupg/**)",
+      "Read(//**/.ssh/id_*)",
+      "Bash(rm -rf /:*)",
+      "Bash(rm -rf ~:*)",
+      "Bash(rm -rf $HOME:*)",
+      "Bash(sudo:*)",
+      "Bash(curl * | sh:*)",
+      "Bash(curl * | bash:*)",
+      "Bash(wget * | sh:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard origin:*)"
+    ],
+    "defaultMode": "default"
+  },
+  "env": {
+    "CLAUDE_CODE_WORKFLOWS": "1",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  }
+}

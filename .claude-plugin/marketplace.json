@@ -1,0 +1,43 @@
+{
+  "name": "agentic-stack",
+  "owner": {
+    "name": "justsima",
+    "url": "https://github.com/justsima"
+  },
+  "metadata": {
+    "description": "A portable agentic research stack for Claude Code: multi-agent deep research (ultradeep), best-on-the-market product research (market-scout), a 5-advisor decision council (llm-council), parallel divergent ideation (adhd), a job-application helper, and a hardened config layer. Evidence-gathering split from judgment, wiki-filed, self-learning.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "ultradeep",
+      "source": "./plugins/ultradeep",
+      "description": "Multi-agent deep-research pipeline: adaptive parallel explorers + STORM-style questioning + adversarial red-team verification + tiered search (Exa/SearXNG/WebSearch) + optional wiki filing & knowledge-graph. Tunable via program.md."
+    },
+    {
+      "name": "market-scout",
+      "source": "./plugins/market-scout",
+      "description": "Find the best X on the market in any category across major retailers. Parallel research explorers + a DETERMINISTIC Python decision-matrix scoring engine + red-team verification + a ranked, segment-aware buying report."
+    },
+    {
+      "name": "llm-council",
+      "source": "./plugins/llm-council",
+      "description": "Run a question/plan/decision through 5 advisors that each use a distinct REASONING METHOD (inversion, decomposition, analogy, naive questioning, dependency graphing), then anonymized peer review and a chairman synthesis."
+    },
+    {
+      "name": "adhd",
+      "source": "./plugins/adhd",
+      "description": "Parallel divergent ideation: spawns N isolated idea branches under different cognitive frames, scores them, prunes traps, and deepens the survivors. For open-ended, high-stakes design/naming/strategy problems."
+    },
+    {
+      "name": "job-application-helper",
+      "source": "./plugins/job-application-helper",
+      "description": "Generate natural, tailored job-application answers from YOUR own profile (a private, git-ignored profile.md you create from the included template)."
+    },
+    {
+      "name": "agentic-config",
+      "source": "./plugins/agentic-config",
+      "description": "The config layer: safety hooks (block dangerous commands, block secret leaks), a session-context hook, a verify-before-stop hook, plus a recommended-settings fragment (permission denylist + workflow flags). No secrets."
+    }
+  ]
+}

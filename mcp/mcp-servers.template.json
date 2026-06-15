@@ -1,0 +1,35 @@
+{
+  "_README": "Reference template for the MCP servers this stack uses. The install.sh script wires the ones you choose via `claude mcp add` — you usually don't edit this file by hand. REQUIRED: exa (public), agentmemory, context7. OPTIONAL: searxng, jina. Never commit a copy with real keys filled in (this template stays key-free; the public Exa/Context7 endpoints need no key).",
+
+  "required": {
+    "exa": {
+      "_what": "Public/free Exa web search & fetch (rate-limited hosted endpoint, no key). Powers ultradeep + market-scout research.",
+      "type": "http",
+      "url": "https://mcp.exa.ai/mcp"
+    },
+    "agentmemory": {
+      "_what": "Cross-session memory (local, noop mode = zero-LLM, BM25+embedding hybrid). Auto-launches per session.",
+      "command": "npx",
+      "args": ["-y", "@agentmemory/agentmemory"]
+    },
+    "context7": {
+      "_what": "Public Context7 library/framework docs (no key for basic use; optional CONTEXT7_API_KEY for higher limits).",
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    }
+  },
+
+  "optional": {
+    "searxng": {
+      "_what": "Self-hosted unlimited meta-search. Requires a local SearXNG (Docker) on :8888 with JSON format enabled. The installer can spin it up.",
+      "command": "npx",
+      "args": ["-y", "mcp-searxng"],
+      "env": { "SEARXNG_URL": "http://localhost:8888" }
+    },
+    "jina": {
+      "_what": "Jina Reader — URL → clean markdown (generous free tier, no key). Verify the current endpoint at https://jina.ai before enabling.",
+      "type": "http",
+      "url": "https://mcp.jina.ai/sse"
+    }
+  }
+}

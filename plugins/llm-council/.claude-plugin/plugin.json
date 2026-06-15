@@ -1,0 +1,7 @@
+{
+  "name": "llm-council",
+  "description": "Run a question, plan, or decision through 5 advisors that each use a distinct reasoning method (inversion, decomposition, analogy, naive questioning, dependency graphing), then anonymized peer review and a chairman synthesis.",
+  "version": "1.0.0",
+  "author": { "name": "justsima", "url": "https://github.com/justsima" },
+  "keywords": ["decision-making", "deliberation", "council", "reasoning", "review"]
+}

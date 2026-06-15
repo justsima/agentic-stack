@@ -1,0 +1,7 @@
+{
+  "name": "adhd",
+  "description": "Parallel divergent ideation: spawns N isolated idea branches under different cognitive frames, scores them, prunes traps, and deepens the survivors. For open-ended, high-stakes design/naming/strategy/schema problems.",
+  "version": "1.0.0",
+  "author": { "name": "justsima", "url": "https://github.com/justsima" },
+  "keywords": ["ideation", "brainstorming", "divergent", "design", "strategy"]
+}
