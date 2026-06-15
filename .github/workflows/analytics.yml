@@ -26,19 +26,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch traffic (views + clones)
+      - name: Archive traffic (views + clones)
         env:
           GH_TOKEN: ${{ secrets.GH_TRAFFIC_TOKEN || github.token }}
         run: |
           mkdir -p traffic
-          gh api "repos/${GITHUB_REPOSITORY}/traffic/views"  > traffic/_views.json
+          # The default GITHUB_TOKEN 403s on the traffic API — it needs a PAT.
+          # Skip gracefully (green run) until a GH_TRAFFIC_TOKEN secret is added.
+          if ! gh api "repos/${GITHUB_REPOSITORY}/traffic/views" > traffic/_views.json 2>/dev/null; then
+            echo "::notice title=Traffic archiving idle::Add a repo secret GH_TRAFFIC_TOKEN (a PAT with 'repo' or fine-grained Administration:read + Contents:write) to enable views/clones archiving. Skipping — not a failure."
+            rm -f traffic/_views.json
+            exit 0
+          fi
           gh api "repos/${GITHUB_REPOSITORY}/traffic/clones" > traffic/_clones.json
-
-      - name: Merge into permanent history + report
-        run: python3 .github/scripts/update-traffic.py
-
-      - name: Commit if changed
-        run: |
+          python3 .github/scripts/update-traffic.py
           rm -f traffic/_views.json traffic/_clones.json
           if [ -n "$(git status --porcelain traffic)" ]; then
             git config user.name  "github-actions[bot]"
@@ -47,5 +48,5 @@ jobs:
             git commit -m "chore(analytics): archive traffic $(date -u +%Y-%m-%d)"
             git push
           else
-            echo "No new traffic data."
+            echo "No new traffic data to commit."
           fi
