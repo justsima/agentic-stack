@@ -64,6 +64,16 @@ for p in "${PLUGINS[@]}"; do
   fi
 done
 
+# ultradeep reads + self-learns into a TUNABLE program.md at a writable user path.
+# Seed it from the bundled default so both reading and the Phase-9.5 write-back work.
+if [ -f "$REPO_DIR/plugins/ultradeep/deep-research/program.md" ]; then
+  mkdir -p "$HOME/.claude/deep-research"
+  if [ ! -f "$HOME/.claude/deep-research/program.md" ]; then
+    cp "$REPO_DIR/plugins/ultradeep/deep-research/program.md" "$HOME/.claude/deep-research/program.md" \
+      && ok "seeded ~/.claude/deep-research/program.md (ultradeep's tunable config — edit it to tune)"
+  else ok "~/.claude/deep-research/program.md already present (left as-is)"; fi
+fi
+
 # ---- 2. REQUIRED MCP servers --------------------------------------------
 hdr "Required MCP servers  (Exa public · agentmemory · Context7)"
 say "These power the research skills and are installed by default."
