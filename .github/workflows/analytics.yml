@@ -1,0 +1,52 @@
+name: Analytics (traffic archiver)
+
+# GitHub deletes traffic data after 14 days. This workflow snapshots views +
+# clones daily into traffic/ so you get a PERMANENT, graphable record of how many
+# people view and "download" (git clone) the stack.
+#
+# Token: uses the built-in GITHUB_TOKEN. If the traffic API returns 403 on your
+# account, create a classic PAT with the `repo` scope, save it as the repo secret
+# GH_TRAFFIC_TOKEN, and this workflow will use it automatically.
+
+on:
+  schedule:
+    - cron: "17 3 * * *"   # daily at 03:17 UTC
+  workflow_dispatch: {}      # run on demand from the Actions tab
+
+permissions:
+  contents: write
+  administration: read
+
+concurrency:
+  group: analytics
+  cancel-in-progress: false
+
+jobs:
+  archive-traffic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch traffic (views + clones)
+        env:
+          GH_TOKEN: ${{ secrets.GH_TRAFFIC_TOKEN || github.token }}
+        run: |
+          mkdir -p traffic
+          gh api "repos/${GITHUB_REPOSITORY}/traffic/views"  > traffic/_views.json
+          gh api "repos/${GITHUB_REPOSITORY}/traffic/clones" > traffic/_clones.json
+
+      - name: Merge into permanent history + report
+        run: python3 .github/scripts/update-traffic.py
+
+      - name: Commit if changed
+        run: |
+          rm -f traffic/_views.json traffic/_clones.json
+          if [ -n "$(git status --porcelain traffic)" ]; then
+            git config user.name  "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add traffic
+            git commit -m "chore(analytics): archive traffic $(date -u +%Y-%m-%d)"
+            git push
+          else
+            echo "No new traffic data."
+          fi
