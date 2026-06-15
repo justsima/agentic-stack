@@ -22,7 +22,7 @@ One-command install · works in Claude Code, Cursor & Codex · free & MIT.
 [![Made for Claude Code](https://img.shields.io/badge/made%20for-Claude%20Code-d97757?style=flat-square&labelColor=0b1020)](https://claude.com/claude-code)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-6ee7b7?style=flat-square&labelColor=0b1020)](#-contributing)
 
-[**🚀 Quick start**](#-quick-start) · [**🧩 Plugins**](#-the-plugins) · [**🧠 How it works**](#-how-it-works) · [**📊 Analytics**](#-analytics--traffic) · [**🌐 Cross-tool**](#-other-tools-cursor--codex)
+[**🚀 Quick start**](#-quick-start) · [**🧩 Plugins**](#-the-plugins) · [**🧠 How it works**](#-how-it-works) · [**📊 Analytics**](#-analytics--traffic) · [**🧰 Any tool**](#-install-in-your-tool)
 
 </div>
 
@@ -153,6 +153,34 @@ claude mcp add --scope user --transport http context7 https://mcp.context7.com/m
 </details>
 
 **Requirements:** Claude Code · `node`/`npx` (for agentmemory) · Docker *(optional, for SearXNG)*.
+**Using Cursor, Codex or Antigravity instead?** → [**Install in your tool**](#-install-in-your-tool).
+
+---
+
+## 🧰 Install in your tool
+
+Works in **any** agent that supports the open **Agent Skills** (`SKILL.md`) + **MCP** standards — two pieces: **(A)** copy the skills, **(B)** add the MCP servers.
+
+| Your tool | Install the skills (one command) | Skills land in |
+|---|---|---|
+| **Claude Code** | `./install.sh`  *(or `/plugin marketplace add justsima/agentic-stack`)* | `~/.claude/skills/` |
+| **Cursor** | `./skills-portable/sync-skills.sh cursor` | `.cursor/skills/` |
+| **Codex** | `./skills-portable/sync-skills.sh codex` | `~/.agents/skills/` |
+| **Antigravity** | `./skills-portable/sync-skills.sh antigravity` | `~/.gemini/antigravity/skills/` |
+| **Gemini CLI** | `./skills-portable/sync-skills.sh gemini` | `~/.gemini/skills/` |
+
+<details><summary><b>Then add the 3 MCP servers (any tool — all free, no keys for 2 of 3)</b></summary><br/>
+
+| Server | Transport | Endpoint / command |
+|---|---|---|
+| exa | HTTP | `https://mcp.exa.ai/mcp` |
+| context7 | HTTP | `https://mcp.context7.com/mcp` |
+| agentmemory | stdio | `npx -y @agentmemory/agentmemory` |
+
+Add them in your tool's **MCP settings** (Claude Code / Codex: `mcp add`; Cursor / Antigravity / Gemini: MCP config UI). Full per-tool steps in [`skills-portable/`](skills-portable/README.md).
+</details>
+
+> `ultradeep` is a Claude Code slash-command (+ sub-agents), so it's Claude Code-only. **market-scout · llm-council · adhd · job-application-helper** run everywhere.
 
 ---
 
@@ -198,16 +226,6 @@ These aren't arbitrary — each pattern is grounded in published work:
 
 - **ultradeep:** edit `~/.claude/deep-research/program.md` (seeded by the installer) — priorities, depth, source policy, search backends. Its **Domain Notes** section grows itself.
 - **market-scout:** edit `plugins/market-scout/skills/market-scout/references/criteria.json` — add product categories + weight profiles (`default` / `value` / `performance` / `travel`).
-
----
-
-## 🌐 Other tools (Cursor / Codex)
-
-The skills use the open **Agent Skills** `SKILL.md` standard. See [`skills-portable/`](skills-portable/README.md):
-
-```bash
-./skills-portable/sync-skills.sh ~/.agents/skills   # e.g. Codex
-```
 
 ---
 
