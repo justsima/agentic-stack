@@ -22,7 +22,7 @@ One-command install · works in Claude Code, Cursor & Codex · free & MIT.
 [![Made for Claude Code](https://img.shields.io/badge/made%20for-Claude%20Code-d97757?style=flat-square&labelColor=0b1020)](https://claude.com/claude-code)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-6ee7b7?style=flat-square&labelColor=0b1020)](#-contributing)
 
-[**🚀 Quick start**](#-quick-start) · [**🧩 Plugins**](#-the-plugins) · [**🧠 How it works**](#-how-it-works) · [**📊 Analytics**](#-analytics--traffic) · [**🌐 Cross-tool**](#-other-tools-curs--codex)
+[**🚀 Quick start**](#-quick-start) · [**🧩 Plugins**](#-the-plugins) · [**🧠 How it works**](#-how-it-works) · [**📊 Analytics**](#-analytics--traffic) · [**🌐 Cross-tool**](#-other-tools-cursor--codex)
 
 </div>
 
@@ -39,6 +39,18 @@ Most "AI skills" are a single clever prompt. **These are full multi-agent pipeli
 - ⚡ **Zero-to-running in one command.** An interactive installer wires the free MCP servers and asks what you want. Required pieces are free and key-less.
 
 > Built by [**@justsima**](https://github.com/justsima) — the agentic research workflow behind real deep-research, buying decisions, and high-stakes calls, packaged so you can run it too.
+
+### How it compares
+
+|  | Single-prompt "skill" | Vanilla Claude Code | **agentic-stack** |
+| --- | :---: | :---: | :---: |
+| Multi-agent fan-out | ❌ | ⚠️ manual | ✅ |
+| Adversarial red-team verification | ❌ | ❌ | ✅ |
+| Deterministic scoring — no hallucinated rankings | ❌ | ❌ | ✅ |
+| Self-learning across runs | ❌ | ❌ | ✅ |
+| Files into a knowledge base | ❌ | ❌ | ✅ |
+| One-command install + MCP wiring | — | — | ✅ |
+| Privacy-first — ships the engine, not your data | — | — | ✅ |
 
 ---
 
@@ -93,7 +105,7 @@ flowchart LR
     R -- pass --> O[Cited report + decision]
     O --> WIKI[(Wiki + memory)]
     WIKI -. compounds .-> W
-    O --> L["Self-learning:\nlesson → program.md"]
+    O --> L["Self-learning:<br/>lesson to program.md"]
     L -. tunes next run .-> P
 ```
 
@@ -208,6 +220,28 @@ The skills use the open **Agent Skills** `SKILL.md` standard. See [`skills-porta
 
 ---
 
+## ❓ FAQ
+
+<details><summary><b>Do I need any paid API keys?</b></summary><br/>
+No. The required MCP servers — Exa (public), agentmemory, Context7 — are free and key-less. The optional ones (SearXNG, Jina) are free too.
+</details>
+
+<details><summary><b>Does it really work in Cursor &amp; Codex?</b></summary><br/>
+The skills use the open Agent Skills <code>SKILL.md</code> standard. Run <code>./skills-portable/sync-skills.sh &lt;dir&gt;</code> to copy them into another tool's skills folder. (<code>ultradeep</code> is a slash-command + sub-agents, so it's Claude Code-only for now.)
+</details>
+
+<details><summary><b>Is my data private?</b></summary><br/>
+Yes — nothing personal ships. Your wiki &amp; memory are empty scaffolds, and <code>job-application-helper</code> reads a git-ignored <code>profile.md</code> you create locally. See <a href="docs/SECURITY.md">SECURITY.md</a>.
+</details>
+
+<details><summary><b>How are "downloads" counted?</b></summary><br/>
+GitHub has no plugin-install counter, so downloads ≈ <b>git clones</b>. GitHub deletes traffic after 14 days, so the bundled Action archives views + clones daily into <a href="traffic/REPORT.md"><code>traffic/</code></a>.
+</details>
+
+<details><summary><b>Will it use a lot of tokens?</b></summary><br/>
+The deep pipelines (<code>ultradeep</code>, <code>llm-council</code>) spawn many sub-agents by design — powerful but token-heavy. <code>market-scout</code> and <code>adhd</code> are lighter. Each skill documents its own cost.
+</details>
+
 ## 🗺️ Roadmap
 
 - [ ] Real demo GIFs per plugin
@@ -225,6 +259,21 @@ Ideas? [Open an issue](https://github.com/justsima/agentic-stack/issues) 🙌
 PRs welcome! Add a plugin under `plugins/<name>/` with a `.claude-plugin/plugin.json`, list it in `.claude-plugin/marketplace.json`, and run `claude plugin validate .`. Keep the privacy rule sacred: **ship the engine, never the data.**
 
 ---
+
+## 👥 Contributors & activity
+
+<div align="center">
+
+<a href="https://github.com/justsima/agentic-stack/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=justsima/agentic-stack" alt="Contributors"/>
+</a>
+
+<sub>Want your face here? <a href="#-contributing">PRs welcome.</a></sub>
+
+</div>
+
+<!-- 📈 Repo Activity: activate the Repobeats graph at https://repobeats.axiom.co
+     (add justsima/agentic-stack), then paste its SVG embed below this comment. -->
 
 ## ⭐ Star history
 
