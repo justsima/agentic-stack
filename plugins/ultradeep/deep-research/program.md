@@ -15,6 +15,51 @@ Edit this file to tune the system to your domain and style without touching the 
 
 ---
 
+## Request Analysis & Clarification (Phase 1 / 1.5)
+
+The orchestrator analyzes the REQUEST before it plans the research, and asks the user structured questions ONLY when it would otherwise guess on something material. This is the cheapest leverage point in the pipeline — a mis-scoped request wastes every downstream explorer — so it always runs, but it is calibrated NOT to interrupt a clear request.
+
+### Complexity tiers (set analysis depth — Phase 1)
+
+| Tier | Looks like | Analysis depth |
+|---|---|---|
+| `narrow-factual` | one concrete question, obvious deliverable | Core sections only (1a), compressed |
+| `standard` | a topic with a few angles | Core + most Extended (1a + 1b) |
+| `broad-strategic` | comparative / open-ended / decision-driving / multi-domain | all sections, in full |
+
+Right-size the analysis to the tier. A bare factual lookup should NOT get an eight-section essay; a strategic comparison should NOT get a one-liner.
+
+### The materiality test (drives the gate — Phase 1.5)
+
+An assumption is **material** if resolving it differently would change **which explorers get dispatched, what sources matter, or what the deliverable looks like**. Material gaps include: a missing time-window on a fast-moving topic; a missing geography/jurisdiction on a legal/regulatory/pricing question; a missing budget on a buying decision; an ambiguous deliverable (survey vs. ranked recommendation vs. how-to); a bare-noun topic with multiple plausible scopes. Non-material (resolve with a noted default, don't ask): sub-angle ordering, section naming, stylistic preferences.
+
+### `CLARIFY_BIAS` — when to ask
+
+Controls the gate's eagerness. Default: **`material`**.
+
+- `material` *(default)* — ask the moment you'd make ANY material assumption, even when a sensible default exists. Clear, fully-specified requests still get zero questions; anything carrying a material guess gets one structured round.
+- `load-bearing-only` — ask only when a material gap has NO sensible default (you genuinely can't proceed). More hands-off.
+- `minimal` — ask only when the topic is a bare noun with no usable scope at all.
+
+`CLARIFY_BIAS`: material
+
+### Gate limits (hard)
+
+- **Phase 1.5: one `AskUserQuestion` call**, up to 4 questions (the highest-leverage material rows). Surplus material rows are recorded as stated defaults in the brief.
+- **Phase 4: one optional `AskUserQuestion` call**, only for a genuine high-stakes fork the upfront gate could not have foreseen. Default is not to ask.
+- Total per run: at most 2 clarification calls. Never drip-feed multiple rounds.
+
+### AskUserQuestion construction rules
+
+- Derive each question + its options from the Phase 1c ledger (the assumptions ARE the options).
+- Put the default / most-likely option FIRST and label it `(Recommended)`.
+- 2-4 options per question; short header (≤12 chars). The tool always appends an "Other" free-text choice — rely on it for open-ended gaps where fixed options don't fit.
+- Never ask what the wiki pre-search (Phase 0.5 → `prior-knowledge.md`) already answered.
+- Fold every answer into the material-parameters table (`assumed`/`missing` → `specified`) and into `brief.md`. The brief, not the raw request, is what Phase 2 plans against.
+- If the user picks "Other" / declines, capture it and proceed on the default — don't re-ask.
+
+---
+
 ## Search Objectives
 
 Every research session must:

@@ -1,5 +1,5 @@
 ---
-description: Robust multi-agent deep research. Orchestrator-worker pattern with adaptive parallelism (1-10 explorers using Exa/HF/Context7/GitHub/zread as relevant), STORM-style perspective questioning, hybrid stopping rule (coverage checklist + budget cap), adversarial red-team verification, wiki pre-search and post-filing integration with ~/agentic-wiki/, and optional knowledge-graph generation. Inspired by Anthropic Research, GPT Researcher, Stanford STORM, Tavily, MCP-Agent Deep Orchestrator. Reads ~/.claude/deep-research/program.md.
+description: Robust multi-agent deep research. Orchestrator-worker pattern with adaptive parallelism (1-10 explorers using Exa/HF/Context7/GitHub/zread as relevant), a scaled request-analysis stage with an adaptive AskUserQuestion clarification gate (asks only when a material assumption would otherwise be made), STORM-style perspective questioning, hybrid stopping rule (coverage checklist + budget cap), adversarial red-team verification, wiki pre-search and post-filing integration with ~/agentic-wiki/, and optional knowledge-graph generation. Inspired by Anthropic Research, GPT Researcher, Stanford STORM, Tavily, MCP-Agent Deep Orchestrator. Reads ~/.claude/deep-research/program.md.
 ---
 
 # Deep Research — Master Orchestrator (`/ultradeep`)
@@ -27,6 +27,9 @@ This is an orchestrator-worker pipeline modeled on Anthropic's production Resear
 - `superpowers:dispatching-parallel-agents` — Phase 3+ (ensure parallelism discipline)
 - `graphify` — Phase 8 (optional, knowledge graph)
 - `claude-obsidian:wiki-lint` — Phase 9 (optional, post-filing health check)
+
+**Built-in tool used at specific phases:**
+- `AskUserQuestion` — Phase 1.5 (clarification gate) and Phase 4 (optional mid-run fork). Structured, multiple-choice; fired ONLY when a material assumption would otherwise be made (a clear, fully-specified request gets no questions). Answers fold into the brief.
 
 **Memory context** — these are your documented patterns; respect them:
 - His workflow is "research → MD plan → orchestrator + action-takers". This command IS that pattern.
@@ -73,22 +76,88 @@ If a prior report covers the topic substantially, your plan in Phase 2 should fo
 
 ---
 
-## PHASE 1 — Clarify + scope confirmation (always confirm, clarify only if vague)
+## PHASE 1 — Request Analysis (scaled to complexity; always run)
 
-**Always do a one-line scope confirmation before dispatching explorers** — even for a concrete topic. Burning 6+ parallel explorers on a mis-framed scope is the single most expensive mistake this pipeline makes. State your interpretation in one or two lines and the angles you intend to cover, then proceed unless corrected:
+Before planning, run a practical analysis of the REQUEST itself — not the topic's content yet, but what is actually being asked, for whom, to decide what. Burning 8-10 parallel explorers on a mis-framed request is the single most expensive mistake this pipeline makes, and the cheapest place to prevent it is here. This stage also produces the raw material for the clarification gate (Phase 1.5).
 
-> "Reading this as: `<one-line interpretation>`. Planned angles: `<3-6 word list>`. Correcting course now if that's off — otherwise dispatching."
+**First, tag complexity in one line** — this sets how deep the analysis goes (per program.md "Request Analysis & Clarification"):
+- `narrow-factual` — a single concrete question with an obvious deliverable → fill the Core sections only, compressed.
+- `standard` — a topic with a few angles → Core + most Extended sections.
+- `broad-strategic` — comparative, open-ended, decision-driving, or multi-domain → all sections, in full.
 
-This is a confirmation, not an interrogation. Do NOT block waiting for a reply on a concrete topic; state the interpretation and continue. Only hard-stop for input when the topic is genuinely ambiguous (below).
+Write the analysis to `$SCRATCH_DIR/analysis.md`.
 
-**Hard-stop and ask 1-3 questions only when the topic is vague:**
-- Topic is a noun without context ("crypto", "the economy")
-- Multiple equally-plausible scopes exist ("write about Apple" → company? fruit? specific product?)
-- User's likely intent is unclear (deep dive? competitive analysis? state-of-the-art? historical?)
+### 1a. Core sections (always)
 
-If clarifying: ask the minimum 1-3 questions to disambiguate. Don't interrogate.
+1. **Restatement & readings** — restate the request in your own words. If more than one plausible reading exists, list each (these become candidate questions in 1.5).
+2. **Intent & deliverable** — what TYPE of output is wanted (landscape survey · state-of-the-art · comparison/ranking · decision-support recommendation · how-to/implementation · due-diligence/risk) AND the decision or action the result will feed. This is the practical core: research that doesn't know what decision it serves can't take a position (Priority #3).
+3. **Material-parameters table** — the concrete parameters that scope the answer. For each, tag its status:
 
-Write the final brief (interpretation + confirmed/assumed scope) to `$SCRATCH_DIR/brief.md`.
+   | Parameter | Value | Status |
+   |---|---|---|
+   | Scope / boundaries | … | specified / assumed / missing |
+   | Time window / recency | … | … |
+   | Geography / jurisdiction | … | … |
+   | Audience / expertise level | … | … |
+   | Budget / cost / hard constraints | … | … |
+   | Required depth | … | … |
+   | Output format / length | … | … |
+
+   Add or drop rows to fit the request. **This table is the engine of the clarification gate** — every `assumed` or `missing` cell is a candidate question.
+
+### 1b. Extended sections (standard + broad-strategic; compress or skip for narrow-factual)
+
+4. **Dimensions & sub-spaces** — the key axes the research must span (e.g., for "best X": the evaluation criteria + the candidate set + the constraints; for a "how does Y work" survey: the mechanisms + the alternatives + the tradeoffs).
+5. **Success criteria** — what makes this research "done and useful"; what a great answer contains that a mediocre one misses.
+6. **Stakes & sensitivity** — how decision-critical is this, and what's the cost of being wrong? (Feeds the triangulation gate in Phase 5, red-team intensity in Phase 6, and council escalation.)
+7. **Prior-knowledge delta** — fold in the Phase 0.5 wiki pre-search: what is ALREADY known (don't re-research it) vs. the genuine gap this run must close.
+8. **Domain risk traps** — the predictable evidence traps for THIS request's domain, pulled from program.md "Domain Notes" (e.g., vendor-sourced numbers, time-varying metrics quoted without an as-of date, adverse-interest sources, single-aggregator stats). Naming them now tells the explorers what to guard against.
+
+### 1c. Assumptions & Open-Questions ledger (the gate's input)
+
+Close the analysis with a ledger. For every parameter tagged `assumed` or `missing` in 1a.3, and every alternate reading from 1a.1, write one row:
+
+| Item | Default I'd assume | Material? | Candidate question + options |
+|---|---|---|---|
+| <ambiguity> | <the sensible default> | yes / no | "<question>" → [opt A (likely), opt B, opt C] |
+
+**Material** = resolving it differently would change WHICH explorers get dispatched, WHAT sources matter, or WHAT the deliverable looks like. The `Material?` column is exactly what Phase 1.5 acts on — so judge it honestly.
+
+---
+
+## PHASE 1.5 — Clarification Gate (conditional `AskUserQuestion`)
+
+The rule (per program.md `CLARIFY_BIAS`, default `material`): **proceed silently when the request is clear; ask via the `AskUserQuestion` tool the moment you'd otherwise make a material assumption.** A clear, fully-specified request gets ZERO questions. A request that forces a material guess gets one structured round of questions — not plain-prose questions, the actual tool, so answers are captured and folded into the brief.
+
+```
+From the ledger (1c), collect every row where Material? = yes.
+
+├─ ZERO material rows
+│     → SKIP the gate. State a one-line interpretation and proceed:
+│       "Reading this as <interpretation>. Planned angles: <3-6 word list>. Dispatching."
+│       (Do NOT block. This is the "clear → no questions" path.)
+│
+└─ ≥1 material row
+      → Make ONE AskUserQuestion call (the only one allowed in this phase):
+        • Include up to 4 questions — the highest-leverage material rows. If there are
+          more than 4, ask the 4 that most change the run and record the rest as stated
+          defaults in the brief.
+        • Each question: clear text + a short header (≤12 chars) + 2-4 options.
+        • Put the default / most-likely option FIRST and label it "(Recommended)".
+        • Derive the options from the ledger so the user can one-click the default.
+          (The tool always appends an "Other" free-text choice — rely on it for
+          open-ended gaps where fixed options don't fit.)
+        • Fold every answer back into the material-parameters table
+          (assumed / missing → specified) and note what was asked + chosen.
+```
+
+**Guardrails:**
+- **One call only** in this phase (≤4 questions). Don't drip-feed multiple rounds.
+- **Never ask what the wiki pre-search already answered** — check `prior-knowledge.md` first.
+- **Never ask stylistic or trivial things** — only material rows. Over-asking a fully-specified request is as much a failure as under-asking a vague one.
+- If the user picks "Other", declines, or gives no usable answer, capture it and proceed with your default; don't re-ask.
+
+**Then write `$SCRATCH_DIR/brief.md`** = the confirmed interpretation + the (now mostly `specified`) material-parameters table + a one-line record of any clarifications asked and their answers. The brief — not the raw request — is what Phase 2 plans against.
 
 ---
 
@@ -211,6 +280,14 @@ Repeat until (saturation, not a counter):
 - All checklist items covered, OR
 - A full round returns **no material new findings** (the real stop signal), OR
 - Beyond round 5, each additional round is justified in writing by the specific uncovered gap it targets (per program.md — no hard round cap; depth-driven)
+
+### Mid-run clarification (optional — at most ONCE per run)
+
+If a round surfaces a genuine HIGH-STAKES FORK that the upfront gate (Phase 1.5) could not have foreseen — explorers found two materially different directions and picking wrong would waste the rest of the run — you may make ONE more `AskUserQuestion` call here. This is the only clarification allowed after dispatch.
+
+- **Hard cap: 1 mid-run gate per run.** Default is NOT to ask — push through on your best judgment unless a fork genuinely blocks productive continuation.
+- **Justify it in writing first**: state the specific fork, the evidence for each branch, and why it wasn't foreseeable at Phase 1.5 (if it WAS foreseeable, that's a Phase 1 analysis miss — note it for Phase 9.5, don't paper over it with a late question).
+- Same construction rules as Phase 1.5 (≤4 questions, recommended-option-first, options derived from the evidence). Fold answers into the brief and `coverage-final.md`.
 
 Write `$SCRATCH_DIR/coverage-final.md` showing covered vs. gap items. Remaining gaps will be acknowledged in the report's Open Questions section.
 
@@ -404,6 +481,7 @@ Knowledge graph: <SCRATCH_DIR>/graphify-out/    (if Phase 8 ran)
 Wiki updated:    hot.md, log.md
 
 Prior knowledge used: <yes/no — was there existing wiki coverage?>
+Clarifications asked: <none — request was fully specified | N upfront (Phase 1.5), N mid-run (Phase 4)>
 Coverage: <N/N checklist items addressed>
 Red team verdict: <Pass | Pass with revisions | Fail-recovered>
 Council escalation: <none | which finding went to which council + verdict>
@@ -444,3 +522,7 @@ Budget is a SAFETY NET, not an optimization target. Use it only when something h
 10. **Not invoking `defuddle` on SEO content** → wastes 40-60% of tokens on noise, degrades extraction quality.
 11. **Temporal leakage** → quoting a time-varying metric (stars, price, count, ranking) without its as-of date, or presenting out-of-window data as current. This was the top red-team finding on the agentic-AI run (post-window GitHub star counts quoted as in-window). Date-stamp at the explorer stage (Phase 3), gate at synthesis (Phase 5).
 12. **Skipping Phase 9.5 self-improvement** → the methodology never compounds. program.md's Domain Notes stay frozen and every run re-learns the same lessons. Always append a lesson (or consciously decide there's none).
+13. **Dispatching on an unanalyzed / mis-framed request** → Phase 1's analysis is the cheapest leverage in the pipeline; a mis-scoped run wastes every parallel explorer downstream. Always produce the analysis + ledger before planning.
+14. **Over-asking a fully-specified request** → the inverse failure. If the material-parameters table has no `assumed`/`missing` material cells, ask NOTHING and proceed. The gate is for material gaps only — a clear request gets zero questions.
+15. **Clarifying in plain prose instead of the `AskUserQuestion` tool** → answers go uncaptured and unstructured. Material clarifications ALWAYS go through the tool (Phase 1.5, and the one optional Phase 4 fork).
+16. **Asking what the wiki pre-search already answered** → check `prior-knowledge.md` before composing any question. The gate fills genuine gaps; it does not re-ask context you already hold.
