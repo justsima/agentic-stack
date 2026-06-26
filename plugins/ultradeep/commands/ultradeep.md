@@ -32,7 +32,7 @@ This is an orchestrator-worker pipeline modeled on Anthropic's production Resear
 - `AskUserQuestion` — Phase 1.5 (clarification gate) and Phase 4 (optional mid-run fork). Structured, multiple-choice; fired ONLY when a material assumption would otherwise be made (a clear, fully-specified request gets no questions). Answers fold into the brief.
 
 **Memory context** — these are your documented patterns; respect them:
-- His workflow is "research → MD plan → orchestrator + action-takers". This command IS that pattern.
+- Your workflow is "research → MD plan → orchestrator + action-takers". This command IS that pattern.
 - Wiki traversal: hot.md → index.md → drill in.
 - Permission mode: bypassPermissions (inherited from session).
 
