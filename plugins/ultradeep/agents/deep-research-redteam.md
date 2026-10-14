@@ -1,5 +1,6 @@
 ---
 name: deep-research-redteam
+model: opus
 description: Adversarial verifier for deep research reports. Reads a draft report and its supporting scratch notes, then attacks the conclusions on 6 axes (unsupported claims, weak evidence, missing perspectives, logical gaps, over-confidence, recency rot). Used by /deep-research orchestrator in the final phase before report finalization. Returns a structured assessment with severity-tagged issues.
 color: red
 effort: max

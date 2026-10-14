@@ -1,5 +1,6 @@
 ---
 name: deep-research-explorer
+model: opus
 description: Parallel research explorer. Receives one specific research angle with a 4-field task spec (objective, output format, tools/sources, boundaries). Runs deep search via Exa + WebFetch + HuggingFace papers + Context7 library docs + GitHub MCP + zread (as relevant to angle), fetches and reads primary sources, files structured notes to a scratch dir, and returns a tight summary. Used by /deep-research orchestrator. 1-10 of these can run in parallel per round.
 color: cyan
 skills:

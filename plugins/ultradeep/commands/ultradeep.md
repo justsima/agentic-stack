@@ -260,7 +260,7 @@ Wait for all explorers to return their structured summaries.
 
 **Depth defaults (per program.md):** dispatch **8-10 explorers** in round 1 for any non-trivial topic — cast as wide as the distinct angles allow. Drop below 8 only for genuinely narrow factual questions.
 
-**Tiered Exa discipline (per program.md "Search Backends"):** depth-needed angles open with the keyed pool (`mcp__exa-key__deep_search_exa` / `deep_researcher` / `get_code_context_exa`); breadth angles use free/shared (`mcp__exa__*`, `searxng`). On any `402`/`429`, fall DOWN the chain (exa-key → exa shared → searxng → WebSearch) and never retry the exhausted tier — note the downgrade in the explorer's notes.
+**Tiered Exa discipline (per program.md "Search Backends"):** depth-needed angles open with the keyed pool (`mcp__exa-key__deep_search_exa` / `get_code_context_exa`); breadth angles use free/shared (`mcp__exa__*`, `searxng`). On any `402`/`429`, fall DOWN the chain (exa-key → exa shared → searxng → WebSearch) and never retry the exhausted tier — note the downgrade in the explorer's notes.
 
 **Scale-up trigger:** if a round genuinely needs **more than 10 parallel workers**, or the topic is huge (a corpus sweep, a many-source cross-check that won't fit in ~10 angles), escalate this run to a **dynamic workflow** instead of serializing explorers: ask for a workflow (or use `ultracode`) so the orchestration runs as a background script with up to 16 concurrent / 1,000 total agents, resumable across rate-limits. The workflow runs the same fan-out → verify → synthesize shape this skill defines, just at higher agent count. Keep the wiki pre-search (Phase 0.5) and post-filing (Phases 7/9/9.5) around it — those are this command's edge over Anthropic's generic workflow `/deep-research`.
 
