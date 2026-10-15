@@ -151,6 +151,7 @@ Add domain-specific guidance here as you accumulate research sessions. **Phase 9
 - gh api is more reliable than git-clone/curl from constrained networks; for OSS repos prefer `gh api repos/<owner>/<name>` over cloning to verify existence + metadata
 
 ### Tooling / source mechanics (backend lessons — tune Search Backends from these)
+- **(2026-10-15 research-stack bench) Supersedes the 09-22 Reddit/X notes below.** Exa shared returns HTTP 429 at about 150 calls a day under multi-agent fan-out; Parallel's keyless MCP (`search.parallel.ai/mcp`) takes over without loss, so it sits in the chain as co-default. Reddit: Arctic Shift (`/api/posts/search`, `/api/comments/tree`) gives full trees with scores; reddit.com `.json` now 403s even inside Bladebro. X: `api.fxtwitter.com/2/profile/<user>/statuses` pages a full timeline keyless (about 830 items deep), so Bladebro on x.com is no longer needed; nitter RSS (meowing.monster, kareem.one) and Bladebro on nitter mirrors are the fallbacks. Headless `claude -p` runs need `CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0` or background explorers stop at 10 minutes.
 - X.com returns HTTP 402 to WebFetch — skip it, go straight to nitter / fxtwitter / threadreaderapp / absorb.md mirrors. Don't waste a fetch on x.com directly.
 - For "does this repo/skill exist" verification, `gh api` + `gh search repos` beats web search — exact, no hallucination risk.
 - Keyed Exa can be FULLY dry for a whole run: on 2026-06-03 (IDL anti-cheating run) `get_code_context_exa`, `deep_search_exa` AND `deep_researcher_start` all returned HTTP 402 (credits exhausted) across all 11 explorers, and SearXNG was intermittently down (Docker container `fetch failed`). The run still hit high confidence on shared `exa` + Context7 `query-docs` + `gh api` + official docs fetched directly, with zero data loss. Lesson: do NOT architect a run's depth around the keyed pool — assume it may be 402 from the first call; shared exa + Context7 + gh api + primary-doc fetch carries even a hard 11-explorer security/legal run. If SearXNG is the planned floor, verify the container is up FIRST (`docker start searxng`) or the floor is WebSearch.
@@ -336,38 +337,40 @@ Add domain-specific guidance here as you accumulate research sessions. **Phase 9
 
 ---
 
-## Search Backends — Tiered Exa strategy (depth-first, free-fallback)
+## Search Backends — keyless-first routing (bench-tested 2026-10-15)
 
-**The tiering rule (Simon's policy, 2026-06-03):**
+**Order (bench-tested 2026-10-15 from one residential IP; re-test on yours):**
 
-1. **Depth-needed angles → keyed Exa FIRST** (`mcp__exa-key__*`). For any angle that genuinely needs deep multi-hop synthesis — the hard, central, contested, or multi-source-cross-check angles — open with the keyed deep tools:
-   - `mcp__exa-key__deep_search_exa` (`type: "deep-reasoning"`) — multi-angle synthesis with citations
-   - RETIRED: the Exa Research API (`deep_researcher_start` / `_check`) returns HTTP 410 since 2026-09-02; its successor, the Exa Agent API, is untested. Use `mcp__exa-key__deep_search_exa` (`type: "deep-reasoning"`) for depth.
-   - `mcp__exa-key__web_search_advanced_exa` — full filter control (date ranges, domains, categories)
-   - `mcp__exa-key__get_code_context_exa` — semantic code search for any code/library/SDK angle (strictly better than web search for code)
-2. **Routine angles + everything after a rate-limit → free/shared tier.** Use `mcp__exa__web_search_exa` (shared neural search) and `mcp__searxng__searxng_web_search` (local, unlimited) for breadth angles, background context, and any angle that doesn't need agentic depth.
-3. **Rate-limit / credit fallback chain (hard rule).** The keyed pool is finite and CAN run dry mid-run (it returned HTTP 402 "credits exceeded" on 2026-06-03 — fell back to shared exa successfully, zero data loss). On any `402`/`429` from a tier, **immediately fall back down the chain, do not retry the exhausted tier:**
-   `exa-key (deep)` → `exa (shared neural)` → **`searxng (local, UNLIMITED — the default floor)`** → `WebSearch (built-in, can't-fail final)`
-   Note the downgrade in the explorer's notes so the synthesis knows which angles got depth-tier vs. fallback-tier coverage.
+1. **Search, general and docs → Exa shared** (`mcp__exa__web_search_exa`, keyless). Bench: 23 of 24 vendor-docs links on the expected domain; 30 of 31 dated links inside the asked window.
+2. **Parallel** (`mcp__parallel-search__web_search`, keyless, `search.parallel.ai/mcp`) is the **co-default**: first choice for X and Reddit discovery, and the immediate fallback whenever Exa shared returns 429. Exa shared returns 429 at about 150 calls a day under fan-out (seen 2026-10-14/15), so a multi-explorer run WILL hit it; do not retry the 429, switch.
+3. **Depth → keyed Exa** (`mcp__exa-key__deep_search_exa` with `type: "deep-reasoning"`, `get_code_context_exa` for code, `web_search_advanced_exa` for date/domain filters). About 1,000 calls a month; spend it on depth, not breadth. RETIRED: the Exa Research API (`deep_researcher_start` / `_check`) returns HTTP 410 since 2026-09-02.
+4. **Floors:** `mcp__exa-key__web_search_exa` only when shared Exa and Parallel both fail; then SearXNG (`mcp__searxng__*`, needs OrbStack running: `open -a OrbStack`; verify with one live query, not `docker ps`); then built-in WebSearch (weakest on the bench: 11 of 74 links on the expected domain, titles only).
 
-   **SearXNG is the default safety-net** because it's self-hosted (local Docker, `mcp__searxng__searxng_web_search`, port 8888) and **cannot rate-limit** — verified working 2026-06-03. When both Exa tiers are exhausted, route ALL remaining breadth searches to SearXNG rather than rationing. SearXNG also has `mcp__searxng__web_url_read` for free URL→markdown extraction.
-   **One dependency caveat:** SearXNG needs its Docker container running. If `mcp__searxng__*` returns a network error (`fetch failed` = container down), bring it up — `open -a OrbStack` (the `searxng` container auto-starts with it) or `docker start searxng`, wait ~5s — then resume. If it can't be revived mid-run, fall through to `WebSearch` (the only tier with zero dependencies) and note it.
+**Read pages:** Exa fetch (`mcp__exa__web_fetch_exa`, passed 6 of 7 bench pages incl. PDF, Cloudflare and a YouTube transcript) → Parallel `web_fetch` (5 of 7) → keyless `https://r.jina.ai/<url>` (3 of 7) → Bladebro 4.6.1 for bot walls (headed Brave, throwaway profile, one task at a time, always `bladebro stop`). Local plain HTML: trafilatura. JavaScript-heavy apps (Uniswap-style) defeated every reader on the bench: say so rather than loop.
+
+**Reddit:** Arctic Shift API (`arctic-shift.photon-reddit.com/api/posts/search`, `/api/comments/tree`: full trees with scores) → Bladebro `see extract auto --url <thread>` → Exa fetch → RSS. Wrap it in a small reader script or skill if you use it often. reddit.com `.json` (dead since 2026-05-28), old.reddit (login-gated since 2026-07-02) and r.jina.ai (403) were blocked from the bench IP.
+
+**X:** `api.fxtwitter.com/2/status/<id>` and `/2/profile/<user>/statuses` (cursor paging; full text, likes, views) → nitter RSS over curl (meowing.monster, kareem.one, nitter.cf search RSS) → Bladebro flow on a nitter mirror (netbub, tiekoetter). Wrap it in a small reader script or skill if you use it often. **Never Exa for X** (mirror sites only, crawl dates).
+
+**Never:** Exa for X; WebSearch as the default for vendor docs; cookie or session replay with real accounts.
 
 **Per-angle routing (within whichever tier is live):**
 
-| Angle type | Depth tier (try first if angle needs depth) | Free/shared + fallback | Cross-check |
+| Angle type | Depth tier (try first if angle needs depth) | Breadth + fallback | Cross-check |
 |---|---|---|---|
-| General web research | `mcp__exa-key__deep_search_exa` | `mcp__exa__web_search_exa` → `searxng` → `WebSearch` | — |
+| General web research | `mcp__exa-key__deep_search_exa` | shared exa → Parallel → searxng → WebSearch | — |
+| Vendor / product docs | — | shared exa → Parallel; read with Exa fetch | official docs page, dated |
 | Academic / papers | `mcp__exa-key__deep_search_exa` (deep-reasoning) | `mcp__huggingface__paper_search` + shared exa | arXiv direct |
-| Code / library / SDK | `mcp__exa-key__get_code_context_exa` | `mcp__plugin_context7_context7__query-docs` + `gh api` | official repo README + CHANGELOG |
+| Code / library / SDK | `mcp__exa-key__get_code_context_exa` | Context7 `query-docs` + `gh api` | official repo README + CHANGELOG |
 | OSS project | `mcp__github-plugin__*` + `mcp__zread__*` | shared exa for external coverage | README + CHANGELOG + issues |
 | HF model / dataset | `mcp__huggingface__hf_doc_search` + `hub_repo_details` | shared exa for context | — |
-| Hard / contested / multi-hop | `mcp__exa-key__deep_search_exa` (`deep-reasoning`) | shared exa breadth + manual synthesis | triangulate 3+ unrelated sources |
-| News / current events | `mcp__exa-key__web_search_advanced_exa` (date-filtered) | shared exa (date filter) → searxng | 3+ unrelated outlets |
+| Community (Reddit / X) | — | Parallel discovery → Arctic Shift / fxtwitter | 2+ independent threads or posts |
+| Hard / contested / multi-hop | `mcp__exa-key__deep_search_exa` (`deep-reasoning`) | shared exa + Parallel breadth + manual synthesis | triangulate 3+ unrelated sources |
+| News / current events | `mcp__exa-key__web_search_advanced_exa` (date-filtered) | shared exa (date filter) → Parallel | 3+ unrelated outlets |
 
-**Always**: invoke `claude-obsidian:defuddle` on noisy fetched pages before extraction. For X.com, skip direct fetch (HTTP 402) — go to nitter / threadreaderapp / absorb.md mirrors.
+Note the tier each angle actually got in the explorer's notes, so the synthesis knows which angles had depth-tier vs fallback-tier coverage. Invoke `claude-obsidian:defuddle` on noisy fetched pages before extraction.
 
-**Cost discipline:** keyed Exa is ~1,000 calls/month — spend it on the angles that NEED depth (deep_search deep-reasoning, get_code_context), not on breadth that shared exa or searxng handle free. A typical run might use the keyed pool for 1-3 core angles and the free tier for the rest.
+**Headless runs:** a `claude -p` run stops its background agents after 10 minutes by default, which killed a 2026-10-15 `/ultradeep` explorer mid-test. Export `CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0` before any headless `/ultradeep`.
 
 ---
 
